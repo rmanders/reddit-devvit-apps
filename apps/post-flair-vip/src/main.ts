@@ -12,6 +12,7 @@ import {
 import { Devvit, RedditAPIClient, getSetting } from '@devvit/public-api';
 
 const reddit = new RedditAPIClient();
+const flairapi = Devvit.use(Devvit.Types.RedditAPI.Flair)
 
 Devvit.addSettings([
     {
@@ -33,6 +34,9 @@ Devvit.addSettings([
 Devvit.addTrigger({
     event: Devvit.Trigger.PostSubmit,
     async handler(postSubmission: PostSubmit, metadata?: Metadata) {
+
+        const sub = await reddit.getCurrentSubreddit(metadata);
+        const flairs = await flairapi.LinkFlair({subreddit: sub!.name}, metadata);
         
       console.log(`Received OnPostSubmit event:\n${JSON.stringify(postSubmission)}\n`,
       `Metadata:\n${JSON.stringify(metadata)}\n\n`);
