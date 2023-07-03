@@ -8,9 +8,10 @@ import {
 import { Devvit, RedditAPIClient, getSetting } from '@devvit/public-api';
 
 // TODO: REMOVE THIS and replace with config or dynamically acquired value
-const SUBREDDIT = 'schlockenspiel';
 const SETTING_VIP_FLAIR = 'vip-post-flair';
 const SETTING_VIP_USERS = 'vip_users';
+
+const reddit = new RedditAPIClient();
 
 Devvit.addSettings([
     {
@@ -22,23 +23,23 @@ Devvit.addSettings([
         type: 'paragraph',
         name: SETTING_VIP_USERS,
         label: 'VIP users (one per line)',
-        onValidate: validateVipUsers
+        onValidate: (event, metadata) => { validateVipUsers(event, metadata, reddit); }
     }
 ]);
 
 Devvit.addTrigger({
     event: Devvit.Trigger.PostSubmit,
     async handler(postSubmission: PostSubmit, metadata?: Metadata) {
-      console.log(`Received OnPostSubmit event:\n${JSON.stringify(postSubmission)}\n`,
-      `Metadata:\n${JSON.stringify(metadata)}`);
-      // TODO: if post is using vip flair, the check user is in vip list. if not, remove
 
-      // REMOVE THIS: list all post flair
-      const reddit = new RedditAPIClient();
-      const sub = await reddit.getSubredditByName(SUBREDDIT, metadata);
+      console.log(`Received OnPostSubmit event:\n${JSON.stringify(postSubmission)}\n`,
+      `Metadata:\n${JSON.stringify(metadata)}\n\n`);
+
+      // REMOVE THIS: TODO: How do we get available post flairs for a subreddit?
+      console.log('Getting subreddit...');
+      const sub = await reddit.getCurrentSubreddit(metadata);
+      console.log('Getting flair templates');
       const postFlairs = await sub.getPostFlairTemplates();
       console.log(`Post Flairs:\n${JSON.stringify(postFlairs)}`);
-
 
       // Get the vip flair:
       const vipFlairText = await getSetting(SETTING_VIP_FLAIR, metadata);
@@ -57,8 +58,34 @@ Devvit.addTrigger({
         console.log(`Post Flair is not same as VIP Flair. No further action needed`);
         return;
       }
+      console.log(`Post's flair is a VIP flair.`);
 
       // Check if user is in VIP list
+      const author = postSubmission.author?.name;
+      if (!author) {
+        console.log('Can\'t get post author. Exiting.');
+        return;
+      }
+      console.log(`Found post author: ${author}`);
+
+      // Get the list if VIP users
+      const vipUsersText: String|undefined = await getSetting(SETTING_VIP_USERS, metadata);
+      if (!vipUsersText) {
+        console.log(`${SETTING_VIP_USERS} settings value is empty. Exiting.`);
+        return;
+      }
+      const vipUsers = vipUsersText.split(/\s+/);
+
+      // Check if post author is in VIP list
+      if (vipUsers.indexOf(author) > -1) {
+        console.log(`Author: ${author}, is a VIP user for flair: ${vipFlairText}!`);
+        return;
+      }
+      
+      // If author is not a VIP, remove the post
+      // TODO: Can we add a removal reason or detail for the mod log?
+      console.log(`Author: ${author}, is NOT VIP user for flair: ${vipFlairText}. Removing post!`);
+      await reddit.remove(postSubmission.post!.id, false, metadata);
 
     },
   });
