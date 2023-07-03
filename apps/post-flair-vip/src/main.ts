@@ -3,20 +3,26 @@ import {
     Metadata,
   } from '@devvit/protos';
 
+  import { validateVipUsers } from './validators.js'
+
 import { Devvit, RedditAPIClient, getSetting } from '@devvit/public-api';
 
 // TODO: REMOVE THIS and replace with config or dynamically acquired value
 const SUBREDDIT = 'schlockenspiel';
 const SETTING_VIP_FLAIR = 'vip-post-flair';
-
-//reddit.getPostFlairTemplates(SUBREDDIT, )
-
+const SETTING_VIP_USERS = 'vip_users';
 
 Devvit.addSettings([
     {
         type: 'string',
         name: SETTING_VIP_FLAIR,
-        label: 'Enter Post flair to be VIP-limited'
+        label: 'Existing post flair text that should be VIP-limited',
+    },
+    {
+        type: 'paragraph',
+        name: SETTING_VIP_USERS,
+        label: 'VIP users (one per line)',
+        onValidate: validateVipUsers
     }
 ]);
 
