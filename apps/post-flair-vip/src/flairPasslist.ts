@@ -83,7 +83,7 @@ export async function getProtectedFlairText(
  * Decides whether or not the post should be allowed
  * @param postSubmission devvit object containing post data
  * @param metadata metadata object needed by Devvit
- * @returns FlairPassListRequest or undefined
+ * @returns true if the post should be allowed, false otherwise
  */
 export async function shouldPostPass(
     postSubmission: PostSubmit,
