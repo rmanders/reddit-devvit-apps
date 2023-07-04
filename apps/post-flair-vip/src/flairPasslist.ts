@@ -1,11 +1,18 @@
-import { SettingsFormFieldValidatorEvent } from "@devvit/public-api/settings/types.js";
+import { 
+    SettingsFormFieldValidatorEvent 
+} from "@devvit/public-api/settings/types.js";
+
 import {
     Metadata,
     PostSubmit,
     LogMessage,
-    Severity,
-  } from '@devvit/protos';
-import { Devvit, getSetting } from "@devvit/public-api";
+    Severity
+} from '@devvit/protos';
+
+import { 
+    Devvit, 
+    getSetting 
+} from "@devvit/public-api";
 
 const logger = Devvit.use(Devvit.Types.Logger);
 
@@ -50,7 +57,7 @@ export async function getPassListUsernames(
 
     const passListText: string|undefined = await getSetting(SETTING_PASSLIST_USERS, metadata);
     if (passListText == undefined) {
-        console.log(`Not value found for setting: [${SETTING_PASSLIST_USERS}]`);
+        console.log(`No value found for setting: [${SETTING_PASSLIST_USERS}]`);
         return;
     }
 
@@ -63,7 +70,7 @@ export async function getPassListUsernames(
 }
 
 /**
- * Gets the text value setting of the Link/Post flair that's proctected by the passlist. 
+ * Gets the text value setting of the Link/Post flair that's protected by the passlist. 
  * If the setting could not be parsed or doesn't exist, undefined is returned.
  * @param metadata metadata object needed by Devvit
  * @returns Optional value of the post flair text that should be protected
