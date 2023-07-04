@@ -11,3 +11,5 @@ Limits a single post flair to a list of users. Posts using the flair by a user n
 ## Future Considerations
 * Add toggle setting for including moderators in the pass-list.
 * Add post-menu button allowing moderators to add post's author to the pass-list.
+* Allow multiple protected post flairs and associated pass-lists.
+* Add custom removal reason for user & modlog visibility (needs API support)
